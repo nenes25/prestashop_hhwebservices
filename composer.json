@@ -1,0 +1,19 @@
+{
+    "name": "nenes25/hhprestashopwebservices",
+    "description": "Enhanced prestashop webservices",
+    "authors": [
+        {
+            "name": "hhennes",
+            "email": "contact@h-hennes.fr"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "prestashop/prestashop-webservice-lib": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "" : "classes/"
+        }
+    }
+}

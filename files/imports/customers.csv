@@ -1,0 +1,6 @@
+email;id_gender;firstname;lastname;birthday;passwd;toDelete
+testhh@yopmail.com;1;herve;herve;2010-01-20;test;0
+testhh2@yopmail.com;1;herve;rv;2010-01-20;test;0
+testhh3@yopmail.com;1;herve;rvns;2010-01-20;passwordtest;0
+testuser;1;herve;testlocal;2010-01-20;passwordtest;0
+test@test.com;1;herve;user;2010-01-20;passwordtest;1
