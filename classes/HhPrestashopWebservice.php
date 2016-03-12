@@ -11,7 +11,10 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
 
     
     /** @var HhCustomerWs instance de gestion des clients */
-    protected $_customerInstance;
+    protected $_customerInstance = 'HhCustomerWs';
+    
+    /** Nom de la resource, à sucharger par les classe qui héritent */
+    protected $_resource;
 
     /**
      * Récupération de l'identifiant d'un objet via ses paramètres
@@ -61,12 +64,21 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
         $this->delete($options);
     }
     
+    
+    /**
+     * Définition de la classe des clients
+     * @param type $className
+     */
+    public function setCustomerInstance($className) {
+        if (class_exists($className)) {
+            $this->_customerInstance = $className;
+        }
+    }
     /**
      * Récupération de la classe de gestion des clients
-     * @return \HhCustomerWs
      */
-    function getCustomerInstance() {
-        return new HhCustomerWs($this->url, $this->key, $this->debug);
+    public function getCustomerInstance() {
+        return new $this->_customerInstance($this->url, $this->key, $this->debug);
     }
 
 }
