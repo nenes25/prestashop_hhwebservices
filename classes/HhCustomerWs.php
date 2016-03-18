@@ -15,33 +15,16 @@ class HhCustomerWs extends HhPrestashopWebservice {
      */
     public function createCustomer($datas) {
 
-        $schema = $this->getEmptyObject();
-        $customerAttributes = $schema->children()->children();
-
-        //Parcours des attributs du client, si une data existe on l'associe
-        foreach ($customerAttributes as $attribute => $values) {
-
-            if (array_key_exists($attribute, $datas))
-                $schema->children()->children()->{$attribute} = $datas[$attribute];
-
-            //Si le champ est nécessaire et qu'il n'est pas associé cela ne fonctionnera pas, on envoie une exception
-            if ($schema->children()->children()->{$attribute}->attributes()->required && !array_key_exists($attribute, $datas)) {
-                throw new PrestaShopWebserviceException('Erreur attribut obligatoire ' . $attribute . ' manquant !');
-            }
-        }
-
-        //Si on veut ajouter des données commune ou statiques on peut les ajouter ici
-        $customerAttributes->note = 'Client add with webservice';
-        $customerAttributes->active = 1;
-        $customerAttributes->id_default_group = 3;
-
-        //Enregistrement du nouveau client
-        $options = array(
-            'resource' => $this->_resource,
-            'postXml' => $schema->asXML(),
+        /**
+         * Données fixes pour l'import des clients
+         */
+        $additonnalDatas = array(
+            'note' => 'Client add with webservice new version',
+            'active' => 1,
+            'id_default_group' => 3
         );
 
-        $xml = $this->add($options);
+        $this->createObject($datas, $additonnalDatas);
     }
 
     /**
@@ -58,7 +41,7 @@ class HhCustomerWs extends HhPrestashopWebservice {
 
         $responseXml = $this->get($options);
         $customerXml = $responseXml->children()->children();
-        
+
         $hasDataChange = false;
         foreach ($datas as $key => $value) {
             if ($customerXml->{$key} && $customerXml->{$key} != $value) {
@@ -66,7 +49,7 @@ class HhCustomerWs extends HhPrestashopWebservice {
                 $customerXml->{$key} = $value;
             }
         }
-        
+
         //On sauvegarde uniquement si il y'a eut des changements
         if ( $hasDataChange ){
             $options = array(
@@ -78,9 +61,14 @@ class HhCustomerWs extends HhPrestashopWebservice {
         }
     }
 
-    
+
+    /**
+     * Suppression d'un client
+     * @param string $email email du client a supprimer
+     * @throws PrestaShopWebserviceException
+     */
     public function deleteCustomer($email){
-        
+
         if ( $idCustomer = $this->getObjectId($email,'email')) {
             $this->deleteObject($this->_resource,$idCustomer);
         }

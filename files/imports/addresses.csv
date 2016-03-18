@@ -1,0 +1,3 @@
+customer_email;address_erp_id;firstname;lastname;company;address1;address2;postcode;city;country;phone;phone_mobile;to_delete
+testhh3@yopmail.com;0001;"herve";"herve";"herve comp";"16 rue des tests";"";"67000";"Strasbourg";"France";"083665656565";;0
+testhh3@yopmail.com;0002;"herve";"herve";"herve mod";"17 rue des tests";"avec compt";"67000";"Strasbourg";"France";"083665656565";;0

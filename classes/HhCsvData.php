@@ -3,17 +3,48 @@
 /**
  * Classe de récupération des données Csv
  *
+ * Renvoie un tableau contenant les valeurs des lignes csv
+ *
  * @author hhennes <contact@h-hennes.fr>
  */
-class HhCsvData {
+class HhCsvData extends HhDataAbstract {
 
-    protected $_datas = array();
+    /** @var string delimiteur du fichier csv */
+    protected $_delimiter = ';';
+
+    /** @var string enclosure du fichier csv */
+    protected $_enclosure ='"';
 
     /**
-     * Instanciation du modèle
+     * Définition du délimiteur csv
+     * @param type $delimiter
      */
-    public function __construct() {
-        
+    public function setDelimiter($delimiter) {
+        $this->_delimiter = $delimiter;
+    }
+
+    /**
+     * Récupération du délimiteur
+     * @return type
+     */
+    public function getDelimiter(){
+        return $this->_delimiter;
+    }
+
+    /**
+     * Définition du séparateurs des datas
+     * @param string $enclosure
+     */
+    public function setEnclosure($enclosure) {
+        $this->_enclosure = $enclosure;
+    }
+
+    /**
+     * Récupération enclosure
+     * @return type
+     */
+    public function getEnclosure(){
+        return $this->_enclosure;
     }
 
     /**
@@ -37,7 +68,7 @@ class HhCsvData {
         $csvDatas = array();
 
         $i = 0;
-        while ($row = fgetcsv($csvFile, 1000, ";", '"')) {
+        while ($row = fgetcsv($csvFile, 1000, $this->_delimiter , $this->_enclosure)) {
             //Gestion des entêtes
             if ($i == 0) {
                 foreach ($row as $datas) {
@@ -59,5 +90,4 @@ class HhCsvData {
 
         return $csvDatas;
     }
-
 }

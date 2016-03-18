@@ -1,9 +1,10 @@
 <?php
 
+//AutoLoad
 include_once 'vendor/autoload.php';
 
-$wsUrl = 'http://yourshop.url';
-$wsAuthKey = 'yourkey';
+//Fichier de configuration
+include_once 'config.php';
 
 //Initialisation du webservice
 $ws = new HhPrestashopWebservice($wsUrl,$wsAuthKey, false);
@@ -13,12 +14,14 @@ $customerWs = $ws->getCustomerInstance();
 
 //Traitement du fichier d'import : on part du principe que c'est basé sur des csv avec séparateur ";" et valeurs encadrés avec des "
 // et que la première ligne contient les titres exacts des attributs prestahop
-//@ToDO : Mettre dans la class Ws
+// L'objectif de cette classe est de fournir un tableau avec les données à insérer sous la forme "clé" => "valeur" pour chaque entité
+// Elle n'est pas spécialement détaillée car ce n'est pas le but.
 $csv = new HhCsvData();
 
-//Traitement des clients : Ajout et suppression
+//Données des clients
 $customerDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'customers');
 
+//Traitement des clients
 foreach ($customerDatas as $customerData) {
     //Suppression des clients
     if ($customerData['toDelete'] == 1) {
@@ -28,7 +31,7 @@ foreach ($customerDatas as $customerData) {
         } catch (PrestaShopWebserviceException $e) {
             echo $e->getMessage();
         }
-    //Gestion des ajouts et modifications    
+    //Gestion des ajouts et modifications
     } else {
         //On vérifie si le client existe via son email
         if ($customerId = $customerWs->getObjectId($customerData['email'], 'email')) {
