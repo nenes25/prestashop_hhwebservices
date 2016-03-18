@@ -28,39 +28,19 @@ class HhCustomerWs extends HhPrestashopWebservice {
     }
 
     /**
-     * Mise à jour d'un client existant via le webservice
-     * @param int $id identifiant du client
-     * @param array $datas données du client
+     * Mise à jour d'un client à partir de son adresse email
+     * @param type $email
+     * @param type $datas
      */
-    public function updateCustomer($id, $datas) {
+    public function updateCustomer($email,$datas) {
 
-        $options = array(
-            'resource' => $this->_resource,
-            'id' => $id
-        );
-
-        $responseXml = $this->get($options);
-        $customerXml = $responseXml->children()->children();
-
-        $hasDataChange = false;
-        foreach ($datas as $key => $value) {
-            if ($customerXml->{$key} && $customerXml->{$key} != $value) {
-                $hasDataChange = true;
-                $customerXml->{$key} = $value;
-            }
-        }
-
-        //On sauvegarde uniquement si il y'a eut des changements
-        if ( $hasDataChange ){
-            $options = array(
-                'resource' => $this->_resource,
-                'id' => $id,
-                'putXml' => $responseXml->asXML(),
-            );
-            $this->edit($options);
+        if ($idCustomer = $this->getObjectId($email, 'email')) {
+            $this->updateObject($customerId, $datas);
+        } 
+        else {
+            throw new PrestaShopWebserviceException('Impossible de modifier le client ' . $email . ' n\'existe pas');
         }
     }
-
 
     /**
      * Suppression d'un client

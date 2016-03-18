@@ -9,6 +9,8 @@ include_once dirname(__FILE__) . '/../vendor/prestashop/prestashop-webservice-li
  */
 class HhPrestashopWebservice extends PrestaShopWebservice {
 
+    /** Définition de la resource à utiliser */
+    protected $_resource;
 
     /** @var HhCustomerWs instance de gestion des clients */
     protected $_customerInstance;
@@ -73,18 +75,38 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
     }
 
     /**
-     * Récupération d'un objet vide
-     * @return SimpleXml
+     * Mise à jour d'un objet
+     * @param int $id Identifiant de l'objet à mettre à jour
+     * @param array $datas
      */
-    public function getEmptyObject() {
+    public function updateObject($id , array $datas ) {
 
-        $options = array(
-            'url' => $this->url.'/api/'.$this->_resource.'/?schema=synopsis'
+         $options = array(
+            'resource' => $this->_resource,
+            'id' => $id
+        );
+
+        $responseXml = $this->get($options);
+        $customerXml = $responseXml->children()->children();
+
+        $hasDataChange = false;
+        foreach ($datas as $key => $value) {
+            if ($customerXml->{$key} && $customerXml->{$key} != $value) {
+                $hasDataChange = true;
+                $customerXml->{$key} = $value;
+            }
+        }
+
+        //On sauvegarde uniquement si il y'a eut des changements
+        if ( $hasDataChange ){
+            $options = array(
+                'resource' => $this->_resource,
+                'id' => $id,
+                'putXml' => $responseXml->asXML(),
             );
+            $this->edit($options);
+        }
 
-        $schema = $this->get($options);
-
-        return $schema;
     }
 
     /**
@@ -98,6 +120,21 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
             'id' => $id,
         );
         $this->delete($options);
+    }
+
+    /**
+     * Récupération d'un objet vide
+     * @return SimpleXml
+     */
+    public function getEmptyObject() {
+
+        $options = array(
+            'url' => $this->url.'/api/'.$this->_resource.'/?schema=synopsis'
+            );
+
+        $schema = $this->get($options);
+
+        return $schema;
     }
 
     /**
@@ -144,6 +181,22 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      */
     function getCustomerInstance() {
         return new HhCustomerWs($this->url, $this->key, $this->debug);
+    }
+
+    /**
+     * Définition de la resource utilisée
+     * @param type $resource
+     */
+    public function setResource($resource) {
+        $this->_resource = $resource;
+    }
+
+    /**
+     * Récupération de la resource en cours
+     * @return type
+     */
+    public function getResource() {
+        return $this->_resource;
     }
 
 }

@@ -19,7 +19,7 @@ $customerWs = $ws->getCustomerInstance();
 $csv = new HhCsvData();
 
 //Données des clients
-$customerDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'customers');
+//$customerDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'customers');
 
 //Traitement des clients
 foreach ($customerDatas as $customerData) {
@@ -50,4 +50,14 @@ foreach ($customerDatas as $customerData) {
             }
         }
     }
+}
+
+
+//Traitement des adresses
+$addressesDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'addresses');
+
+foreach ( $addressesDatas as $addressesData ) {
+    echo '<pre>';
+    print_r($addressesData);
+    echo '</pre>';
 }
