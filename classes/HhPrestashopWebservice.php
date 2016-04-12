@@ -9,11 +9,16 @@ include_once dirname(__FILE__) . '/../vendor/prestashop/prestashop-webservice-li
  */
 class HhPrestashopWebservice extends PrestaShopWebservice {
 
+    protected $_id;
+
     /** Définition de la resource à utiliser */
     protected $_resource;
 
-    /** @var HhCustomerWs instance de gestion des clients */
-    protected $_customerInstance;
+    /** @var instanciations des sous-classes */
+    protected $_instances = array('customer'=> 'HhCustomerWs' , 'addresses' => 'HhCustomerAddressWs');
+
+    /** @var $datas : Données à traiter par la classe */
+    protected $_datas = array();
 
     /**
      * Récupération de l'identifiant d'un objet via ses paramètres
@@ -40,7 +45,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      * @param array $datas données de création de l'objet
      * @param array $additionnal_datas => parametres de création statique
      */
-    public function createObject( array $datas , array $additionnal_datas) {
+    public function createObject( array $datas , array $additionnal_datas = array()) {
 
         $schema = $this->getEmptyObject();
         $objectAttributes = $schema->children()->children();
@@ -114,9 +119,9 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      * @param type $resource
      * @param type $id
      */
-    public function deleteObject($resource,$id) {
+    public function deleteObject($id) {
         $options = array(
-            'resource' => $resource,
+            'resource' => $this->_resource,
             'id' => $id,
         );
         $this->delete($options);
@@ -163,7 +168,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
 
                     if ( isset($params[$map]['function']) && method_exists($this, $params[$map]['function'])) {
 
-                        $data = call_user_func_array(array($this,$params[$map]['function']), array($data));
+                         $data = call_user_func_array(array($this,$params[$map]['function']), array($data));
                     }
                     else {
                         echo 'Methode '.$params[$map]['function'].' existe pas';
@@ -171,16 +176,30 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
                 }
             }
 
+            $datas[$i] = $data;
+
             $i++;
+        }
+
+        return $datas;
+    }
+
+    /**
+     * Définition d'une sous classe
+     * @param type $className
+     */
+    public function setInstanceType($type,$className) {
+        if (class_exists($className)) {
+            $this->_instances[$type] = $className;
         }
     }
 
     /**
-     * Récupération de la classe de gestion des clients
-     * @return \HhCustomerWs
+     * Récupération des sous-classes de gestion
+     * @return new Object
      */
-    function getCustomerInstance() {
-        return new HhCustomerWs($this->url, $this->key, $this->debug);
+    function getInstanceType($type) {
+        return new $this->_instances[$type]($this->url, $this->key, $this->debug);
     }
 
     /**
@@ -188,6 +207,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      * @param type $resource
      */
     public function setResource($resource) {
+        echo 'Definition de la resource '.$resource.'<br />';
         $this->_resource = $resource;
     }
 
@@ -197,6 +217,70 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      */
     public function getResource() {
         return $this->_resource;
+    }
+
+    /**
+     * Définition des datas à traiter
+     * @param type $datas
+     */
+    public function setDatas($datas) {
+        $this->_datas = $datas;
+    }
+
+    /**
+     * Récupération des datas de la classe
+     * @param type $datas
+     * @return type
+     */
+    public function getDatas($datas) {
+        return $this->_datas;
+    }
+
+    public function setId($id) {
+        $this->_id = $id;
+    }
+
+    /**
+     * Traitement des données
+     */
+    public function processDatas()
+    {
+
+        //$this->setResource('addresses');
+        echo $this->_resource;
+
+        if (!sizeof($this->_datas)) {
+            echo 'Pas de données à traiter';
+            return;
+        }
+
+        foreach ($this->_datas as $data) {
+            //Suppression des clients
+            if ($data['toDelete'] == 1) {
+                try {
+                    echo 'Suppression objet ' . $this->_resource . ' ' . $data[$this->_id] . '<br />';
+                    $this->deleteObject($data[$this->_id]);
+                } catch (PrestaShopWebserviceException $e) {
+                    echo $e->getMessage();
+                }
+            } else {
+                if ($objectId = $this->getObjectId($data[$this->_id], $this->_id)) {
+                    echo 'Maj objet ' . $data[$this->_id] . '<br />';
+                    try {
+                        $this->updateObject($objectId, $data);
+                    } catch (PrestaShopWebserviceException $e) {
+                        echo $e->getMessage();
+                    }
+                } else {
+                    echo 'Creation objet' . $data[$this->_id] . '<br />';
+                    try {
+                        $this->createObject($data);
+                    } catch (PrestaShopWebserviceException $e) {
+                        echo $e->getMessage();
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -35,8 +35,8 @@ class HhCustomerWs extends HhPrestashopWebservice {
     public function updateCustomer($email,$datas) {
 
         if ($idCustomer = $this->getObjectId($email, 'email')) {
-            $this->updateObject($customerId, $datas);
-        } 
+          $this->updateObject($idCustomer, $datas);
+        }
         else {
             throw new PrestaShopWebserviceException('Impossible de modifier le client ' . $email . ' n\'existe pas');
         }
@@ -50,10 +50,48 @@ class HhCustomerWs extends HhPrestashopWebservice {
     public function deleteCustomer($email){
 
         if ( $idCustomer = $this->getObjectId($email,'email')) {
-            $this->deleteObject($this->_resource,$idCustomer);
+            $this->deleteObject($idCustomer);
         }
         else {
             throw new PrestaShopWebserviceException('Impossible de supprimer le client '.$email.' n\'existe pas');
         }
     }
+
+    /**
+     * Traitement des données
+     */
+    public function processDatas()
+    {
+        //Traitement des clients
+        foreach ($this->_datas as $customerData) {
+            //Suppression des clients
+            if ($customerData['toDelete'] == 1) {
+                try {
+                    echo 'Suppression du client ' . $customerData['email'] . '<br />';
+                    $this->deleteCustomer($customerData['email']);
+                } catch (PrestaShopWebserviceException $e) {
+                    echo $e->getMessage();
+                }
+                //Gestion des ajouts et modifications
+            } else {
+                //On vérifie si le client existe via son email
+                if ($customerId = $this->getObjectId($customerData['email'], 'email')) {
+                    echo 'Maj du client ' . $customerData['email'] . ' - id prestashop ' . $customerId . '<br />';
+                    try {
+                        $this->updateObject($customerId, $customerData);
+                    } catch (PrestaShopWebserviceException $e) {
+                        echo $e->getMessage();
+                    }
+                } else {
+                    echo 'Creation du client' . $customerData['email'] . '<br />';
+                    try {
+                        $this->createCustomer($customerData);
+                    } catch (PrestaShopWebserviceException $e) {
+                        echo $e->getMessage();
+                    }
+                }
+            }
+        }
+    }
+
 }
