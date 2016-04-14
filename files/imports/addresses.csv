@@ -1,5 +1,5 @@
-customer_email;address_erp_id;firstname;lastname;company;address1;address2;postcode;city;country;phone;phone_mobile;to_delete
+customer_email;address_erp_id;firstname;lastname;company;address1;address2;postcode;city;country;phone;phone_mobile;toDelete
 testhh3@yopmail.com;0001;"herve";"herve";"herve comp";"16 rue des tests";"";"67000";"Strasbourg";"France";"083665656565";;0
 testhh3@yopmail.com;0002;"herve";"herve";"herve mod";"17 rue des tests";"avec compt";"67000";"Strasbourg";"France";"083665656565";;0
 test3@test33.com;00045;"herve";"herve";"herve mod";"17 rue des modifications";"avec compt";"67000";"Strasbourg";"France";"083665656565";;0
-test3@test33.com ;00423;"herve";"herve";"herve mod";"17 rue des adresses";"avec compt";"67000";"Strasbourg";"France";"083665656565";;0
+test3@test33.com ;00423;"herve";"herve";"herve mod";"17 rue des adresses";"avec compt";"67000";"Strasbourg";"France";"083665656565";;1

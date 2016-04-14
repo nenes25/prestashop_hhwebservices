@@ -7,7 +7,7 @@
 class HhCustomerAddressWs extends HhPrestashopWebservice
 {
     protected $_resource = 'addresses';
-    protected $resource = 'addresses';
+    const WS_RESOURCE = 'addresses';
 
     protected $_id = 'alias';
 
@@ -33,10 +33,21 @@ class HhCustomerAddressWs extends HhPrestashopWebservice
     public function processDatas()
     {
         $this->_datas = $this->mapDatas($this->_datas, $this->_dataMapping);
-        $this->setResource($this->resource);
+        $this->setResource(self::WS_RESOURCE);
         parent::processDatas();
     }
 
+    /**
+     * Surcharge de la suppression
+     * @param type $id
+     */
+    public function deleteObject($id)
+    {
+        $idObject = $this->getObjectId($id, $this->_id);
+        if ( $idObject) {
+            parent::deleteObject($idObject);
+        }
+    }
 
     /**
      * Récupération de l'identifiant du client
