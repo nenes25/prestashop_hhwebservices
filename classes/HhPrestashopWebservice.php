@@ -14,8 +14,15 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
     /** Définition de la resource à utiliser */
     protected $_resource;
 
-    /** @var instanciations des sous-classes */
-    protected $_instances = array('customer'=> 'HhCustomerWs' , 'addresses' => 'HhCustomerAddressWs');
+    /** @var instanciations des sous-classes
+     * Classes par défaut surchargeable via la méthode
+     * setClassType($type)
+     */
+    protected $_instances = array(
+        'customer'=> 'HhCustomerWs' ,
+        'addresses' => 'HhCustomerAddressWs',
+        'categories' => 'HhCatalogCategoryWs'
+        );
 
     /** @var $datas : Données à traiter par la classe */
     protected $_datas = array();
@@ -53,8 +60,21 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
         //Parcours des attributs du client, si une data existe on l'associe
         foreach ($objectAttributes as $attribute => $values) {
 
-            if (array_key_exists($attribute, $datas))
-                $schema->children()->children()->{$attribute} = $datas[$attribute];
+            if (array_key_exists($attribute, $datas)) {
+
+                if ( is_array($datas[$attribute])) {
+                    $i=0;
+                    foreach ( $schema->children()->children()->{$attribute}->children() as $lang ) {
+                        if ( array_key_exists((int)$lang['id'], $datas[$attribute]) ) {
+                            $schema->children()->children()->{$attribute}->language[$i] = $datas[$attribute][(int)$lang['id']];
+                        }
+                        $i++;
+                    }
+                }
+                else {
+                    $schema->children()->children()->{$attribute} = $datas[$attribute];
+                }
+            }
 
             //Si le champ est nécessaire et qu'il n'est pas associé cela ne fonctionnera pas, on envoie une exception
             if ($schema->children()->children()->{$attribute}->attributes()->required && !array_key_exists($attribute, $datas)) {
@@ -83,6 +103,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      * Mise à jour d'un objet
      * @param int $id Identifiant de l'objet à mettre à jour
      * @param array $datas
+     * @todo Gérer les champs de langue
      */
     public function updateObject($id , array $datas ) {
 
@@ -134,7 +155,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
     public function getEmptyObject() {
 
         $options = array(
-            'url' => $this->url.'/api/'.$this->_resource.'/?schema=synopsis'
+            'url' => $this->url.'/api/'.$this->_resource.'/?schema=blank'
             );
 
         $schema = $this->get($options);
@@ -170,6 +191,9 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
 
                          $data = call_user_func_array(array($this,$params[$map]['function']), array($data));
                     }
+                    else if ( isset($params[$map]['language']) ) {
+                        $data = $this->addLanguageFields($data,$map);
+                    }
                     else {
                         echo 'Methode '.$params[$map]['function'].' existe pas';
                     }
@@ -182,6 +206,19 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
         }
 
         return $datas;
+    }
+
+    /**
+     * Beta : Ajout des champs de traductions
+     * @param type $row
+     * @param type $key
+     */
+    public function addLanguageFields($row,$key) {
+
+        $oldValue = $row[$key];
+        $row[$key]=array('1' => $oldValue,'2'=> $oldValue);
+
+        return $row;
     }
 
     /**
@@ -225,6 +262,7 @@ class HhPrestashopWebservice extends PrestaShopWebservice {
      */
     public function setDatas($datas) {
         $this->_datas = $datas;
+        return $this;
     }
 
     /**

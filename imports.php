@@ -7,7 +7,7 @@ include_once 'vendor/autoload.php';
 include_once 'config.php';
 
 //Initialisation du webservice
-$ws = new HhPrestashopWebservice($wsUrl,$wsAuthKey, false);
+$ws = new HhPrestashopWebservice($wsUrl,$wsAuthKey, true);
 
 //Traitement du fichier d'import : on part du principe que c'est basé sur des csv avec séparateur ";" et valeurs encadrés avec des "
 // et que la première ligne contient les titres exacts des attributs prestahop
@@ -23,7 +23,13 @@ $customerWs->processDatas();*/
 
 
 //Traitement des adresses
-$addressesDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'addresses');
+/*$addressesDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'addresses');
 $addresseWs = $ws->getInstanceType('addresses');
 $addresseWs->setDatas($addressesDatas);
-$addresseWs->processDatas();
+$addresseWs->processDatas();*/
+
+//Traitement des catégories
+$categoryDatas = $csv->getDatas(dirname(__FILE__) . '/files/imports/', 'categories');
+$ws->getInstanceType('categories')
+        ->setDatas($categoryDatas)
+        ->processDatas();

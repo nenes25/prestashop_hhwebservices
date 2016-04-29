@@ -1,0 +1,4 @@
+code;active;name;parent_category_code;description;meta_title;meta_keywords;meta_description;link_rewrite;image;toDelete
+A001;1;"Cat1";0;Category 1 Description;Meta 1;Keyword 1;Meta description 1;rewrited;testimg.jpg;0
+A002;1;"SubCat1";A001;Category 2 Description;Meta 2;Keyword 2;Meta description 1;rewrited-test;testimg2.jpg;0
+A003;1;"SubSubCat1";A002;Category 3 Description;Meta 0;Keyword 3;Meta description 1;rewrited-last;testimg3.jpg;0
